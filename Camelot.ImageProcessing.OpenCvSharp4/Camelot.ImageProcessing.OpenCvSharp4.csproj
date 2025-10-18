@@ -1,26 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1</TargetFrameworks>
+    <PackageId>Camelot.Sharp.OpenCvSharp4.Cmoski</PackageId>
     <PackageTags>pdf, extract, table, camelot, pdfpig, parse, extraction, export, opencv, image</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Authors>BobLd</Authors>
-    <Version>0.0.1-alpha003</Version>
-    <Description>A C# library to extract tabular data from PDFs (port of camelot Python version using PdfPig). Contains OpenCvSharp4 for image processing used in the Lattice parser.</Description>
-    <PackageProjectUrl>https://github.com/BobLd/camelot-sharp</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/BobLd/camelot-sharp</RepositoryUrl>
+    <Authors>cmoski, BobLd</Authors>
+    <Version>0.0.3</Version>
+    <Description>A C# library to extract tabular data from PDFs (port of camelot Python version using PdfPig). Contains OpenCvSharp4 for image processing used in the Lattice parser. Maintained fork with fixes for multi-column text splitting.</Description>
+    <PackageProjectUrl>https://github.com/cmoski/camelot-sharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/cmoski/camelot-sharp</RepositoryUrl>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageReleaseNotes>Fixed Lattice parser text splitting for multi-column tables</PackageReleaseNotes>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507" />
     <PackageReference Include="OpenCvSharp4.runtime.osx.10.15-x64" Version="4.6.0.20230105" />
@@ -29,9 +28,7 @@
     <PackageReference Include="PdfPig" Version="0.1.11" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.10" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Camelot\Camelot.csproj" />
   </ItemGroup>
-
 </Project>

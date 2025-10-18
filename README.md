@@ -1,13 +1,18 @@
-# camelot-sharp
-A C# library to extract tabular data from PDFs (port of camelot Python version using PdfPig).
+# Camelot.Sharp
 
-Original Python source code available here: [camelot-dev/camelot](https://github.com/camelot-dev/camelot).
+This is a maintained fork of [BobLd's camelot-sharp](https://github.com/BobLd/camelot-sharp) with bug fixes and improvements.
 
-[![Windows](https://github.com/BobLd/camelot-sharp/actions/workflows/dotnet.yml/badge.svg)](https://github.com/BobLd/camelot-sharp/actions/workflows/dotnet.yml)
+**Original author:** BobLd  
+**Maintained by:** cmoski
 
-NuGet packages available on the [releases](https://github.com/BobLd/camelot-sharp/releases) page and on www.nuget.org:
-- [Camelot](https://www.nuget.org/packages/Camelot)
-- [Camelot.ImageProcessing.OpenCvSharp4](https://www.nuget.org/packages/Camelot.ImageProcessing.OpenCvSharp4)
+## Recent Improvements
+
+- **v0.0.3**: Fixed Lattice parser text splitting for multi-column tables
+  - Improved vertical proximity detection for text grouping
+  - Better handling of text elements with slight vertical offsets
+  - Prevents incorrect text merging across columns
+
+[Rest of original README...]
 
 # Usage
 ## Stream mode 
