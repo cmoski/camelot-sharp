@@ -1,5 +1,6 @@
 ﻿using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig.Core;
+using UglyToad.PdfPig.Graphics.Colors;
 
 namespace Camelot
 {
@@ -12,7 +13,19 @@ namespace Camelot
     internal class LTAnno : Letter
     {
         public LTAnno(string value)
-            : base(value, new PdfRectangle(), new PdfPoint(), new PdfPoint(), 0, 0, null, null, 0, -1)
+            : base(
+                value: value,
+                glyphRectangle: new PdfRectangle(),
+                startBaseLine: new PdfPoint(),
+                endBaseLine: new PdfPoint(),
+                width: 0,
+                fontSize: 0,
+                font: null,
+                renderingMode: TextRenderingMode.Fill,
+                strokeColor: GrayColor.Black,
+                fillColor: GrayColor.Black,
+                pointSize: 0,
+                textSequence: -1)
         { }
     }
 }

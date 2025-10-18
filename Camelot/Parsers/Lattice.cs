@@ -346,7 +346,6 @@ namespace Camelot.Parsers
             var rowsT = Enumerable.Range(0, rows.Count - 1).Select(i => (rows[i], rows[i + 1])).ToList();
             return (colsT, rowsT, v_s, h_s);
         }
-
         /// <summary>
         /// TODO: BobLD - have a single function for stream and lattice
         /// </summary>
@@ -374,10 +373,81 @@ namespace Camelot.Parsers
             {
                 foreach (var t in tBbox[direction])
                 {
+                    // First, determine which cell this text would naturally go to (without splitting)
+                    (var initial_indices, var _) = Utils.GetTableIndex(table,
+                        t,
+                        direction,
+                        split_text: false,  // Don't split initially
+                        flag_size: FlagSize,
+                        strip_text: StripText,
+                        log: log);
+
+                    // Check if text spans multiple columns AND is not in a spanning cell
+                    bool shouldForceSplit = false;
+                    if (initial_indices.Count > 0 && initial_indices[0].r_idx != -1 && initial_indices[0].c_idx != -1)
+                    {
+                        var r_idx = initial_indices[0].r_idx;
+                        var c_idx = initial_indices[0].c_idx;
+                        var cell = table.Cells[r_idx][c_idx];
+
+                        // Only force split if:
+                        // 1. Text spans multiple columns with significant overlap, AND
+                        // 2. The target cell is NOT a spanning cell
+                        if (!cell.HSpan && direction == "horizontal")
+                        {
+                            int significantOverlaps = 0;
+                            float textWidth = t.X1() - t.X0();
+
+                            foreach (var c in table.Cols)
+                            {
+                                if (c.Item1 <= t.X1() && c.Item2 >= t.X0())
+                                {
+                                    float left = Math.Max(c.Item1, t.X0());
+                                    float right = Math.Min(c.Item2, t.X1());
+                                    float overlap = right - left;
+                                    float overlapPct = overlap / textWidth;
+
+                                    if (overlapPct > 0.2f)
+                                    {
+                                        significantOverlaps++;
+                                    }
+                                }
+                            }
+
+                            shouldForceSplit = significantOverlaps >= 2;
+                        }
+                        else if (!cell.VSpan && direction == "vertical")
+                        {
+                            // Similar for vertical
+                            int significantOverlaps = 0;
+                            float textHeight = t.Y0() - t.Y1();
+
+                            foreach (var r in table.Rows)
+                            {
+                                if (r.Item2 <= t.Y0() && t.Y1() <= r.Item1)
+                                {
+                                    float top = Math.Min(r.Item1, t.Y0());
+                                    float bottom = Math.Max(r.Item2, t.Y1());
+                                    float overlap = top - bottom;
+                                    float overlapPct = overlap / textHeight;
+
+                                    if (overlapPct > 0.2f)
+                                    {
+                                        significantOverlaps++;
+                                    }
+                                }
+                            }
+
+                            shouldForceSplit = significantOverlaps >= 2;
+                        }
+                    }
+
+                    bool shouldSplit = SplitText || shouldForceSplit;
+
                     (var indices, var error) = Utils.GetTableIndex(table,
                         t,
                         direction,
-                        split_text: SplitText,
+                        split_text: shouldSplit,
                         flag_size: FlagSize,
                         strip_text: StripText,
                         log: log);
@@ -427,7 +497,7 @@ namespace Camelot.Parsers
             return table;
         }
 
-        public override List<Table> ExtractTables(Page page, bool suppress_stdout = false, params DlaOptions[] layout_kwargs)
+        public override List<Table> ExtractTables(Page page, bool suppress_stdout = false, params IDlaOptions[] layout_kwargs)
         {
             GenerateLayout(page, layout_kwargs);
             var base_filename = Path.GetFileName(RootName);

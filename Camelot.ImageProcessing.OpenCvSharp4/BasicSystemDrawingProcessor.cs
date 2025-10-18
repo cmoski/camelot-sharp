@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -97,12 +98,35 @@ namespace Camelot.ImageProcessing.OpenCvSharp4
                             {
                                 gp.AddLine((float)line.From.X, (float)line.From.Y, (float)line.To.X, (float)line.To.Y);
                             }
-                            else if (command is BezierCurve curve)
+                            else if (command is CubicBezierCurve cubicCurve)
                             {
-                                gp.AddBezier((float)curve.StartPoint.X, (float)curve.StartPoint.Y,
-                                    (float)curve.FirstControlPoint.X, (float)curve.FirstControlPoint.Y,
-                                    (float)curve.SecondControlPoint.X, (float)curve.SecondControlPoint.Y,
-                                    (float)curve.EndPoint.X, (float)curve.EndPoint.Y);
+                                // FIXED: Cast to CubicBezierCurve to access FirstControlPoint and SecondControlPoint
+                                gp.AddBezier((float)cubicCurve.StartPoint.X, (float)cubicCurve.StartPoint.Y,
+                                    (float)cubicCurve.FirstControlPoint.X, (float)cubicCurve.FirstControlPoint.Y,
+                                    (float)cubicCurve.SecondControlPoint.X, (float)cubicCurve.SecondControlPoint.Y,
+                                    (float)cubicCurve.EndPoint.X, (float)cubicCurve.EndPoint.Y);
+                            }
+                            else if (command is QuadraticBezierCurve quadCurve)
+                            {
+                                // Handle quadratic bezier curves (used in fonts)
+                                // Convert to cubic bezier for System.Drawing
+                                // Quadratic: P0, P1 (control), P2
+                                // Cubic: P0, C1, C2, P3
+                                // Conversion: C1 = P0 + 2/3 * (P1 - P0)
+                                //            C2 = P2 + 2/3 * (P1 - P2)
+                                var p0 = quadCurve.StartPoint;
+                                var p1 = quadCurve.ControlPoint;
+                                var p2 = quadCurve.EndPoint;
+
+                                var c1X = p0.X + (2.0 / 3.0) * (p1.X - p0.X);
+                                var c1Y = p0.Y + (2.0 / 3.0) * (p1.Y - p0.Y);
+                                var c2X = p2.X + (2.0 / 3.0) * (p1.X - p2.X);
+                                var c2Y = p2.Y + (2.0 / 3.0) * (p1.Y - p2.Y);
+
+                                gp.AddBezier((float)p0.X, (float)p0.Y,
+                                    (float)c1X, (float)c1Y,
+                                    (float)c2X, (float)c2Y,
+                                    (float)p2.X, (float)p2.Y);
                             }
                             else if (command is Close)
                             {
@@ -168,23 +192,7 @@ namespace Camelot.ImageProcessing.OpenCvSharp4
             }
             else
             {
-                if (image.TryGetBytes(out var bytes))
-                {
-                    try
-                    {
-#pragma warning disable IDE0063 // Use simple 'using' statement
-                        using (var img = Image.FromStream(new MemoryStream(bytes.ToArray())))
-#pragma warning restore IDE0063 // Use simple 'using' statement
-                        {
-                            img.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                            graphics.DrawImage(img, new RectangleF(0, 0, 1, 1));
-                        }
-                        return;
-                    }
-                    catch (Exception)
-                    { }
-                }
-
+                // Try RawBytes directly (works for JPEG images)
                 try
                 {
 #pragma warning disable IDE0063 // Use simple 'using' statement
@@ -197,6 +205,7 @@ namespace Camelot.ImageProcessing.OpenCvSharp4
                 }
                 catch (Exception)
                 {
+                    // If RawBytes fails, draw placeholder
                     graphics.FillRectangle(Brushes.HotPink, new RectangleF(0, 0, 1, 1));
                 }
             }

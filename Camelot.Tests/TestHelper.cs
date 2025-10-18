@@ -31,12 +31,20 @@ namespace Camelot.Tests
                 {
                     new Word(new List<Letter>()
                     {
-                        new Letter(text,
-                                   new PdfRectangle(x0, y0, x1, y1),
-                                   new PdfPoint(x0, y0),
-                                   new PdfPoint(x1, y0),
-                                   1, 1, new FontDetails(string.Empty, false, 1, false),
-                                   RGBColor.Black, 1, -1)
+                        // FIXED: Updated Letter constructor with all 12 required parameters
+                        new Letter(
+                            value: text,
+                            glyphRectangle: new PdfRectangle(x0, y0, x1, y1),
+                            startBaseLine: new PdfPoint(x0, y0),
+                            endBaseLine: new PdfPoint(x1, y0),
+                            width: 1,
+                            fontSize: 1,
+                            font: new FontDetails(string.Empty, false, 1, false),
+                            renderingMode: TextRenderingMode.Fill,      // Added
+                            strokeColor: RGBColor.Black,                // Changed from old position
+                            fillColor: RGBColor.Black,                  // Added
+                            pointSize: 1,                               // Added (was in old position but as different param)
+                            textSequence: -1)
                     })
                 });
         }

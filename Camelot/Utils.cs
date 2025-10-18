@@ -490,12 +490,50 @@ namespace Camelot
             {
                 if (flag_size)
                 {
-                    grouped_chars.Add((chars.Key.Item1, chars.Key.Item2, FlagFontSize(chars.Select(t => (Letter)t.Item3).ToList(), direction, strip_text)));
+                    var letters = chars.Where(t => t.Item3 is Letter).Select(t => (Letter)t.Item3).ToList();
+                    grouped_chars.Add((chars.Key.Item1, chars.Key.Item2, FlagFontSize(letters, direction, strip_text)));
                 }
                 else
                 {
-                    var gchars = chars.Select(t => ((Letter)t.Item3).Value);
-                    grouped_chars.Add((chars.Key.Item1, chars.Key.Item2, TextStrip(string.Concat(gchars), strip_text)));
+                    // Sort letters by position
+                    var letters = chars.Where(t => t.Item3 is Letter)
+                                       .Select(t => (Letter)t.Item3)
+                                       .OrderBy(l => direction == "horizontal" ? l.X0() : l.Y0())
+                                       .ToList();
+
+                    if (letters.Count == 0)
+                    {
+                        grouped_chars.Add((chars.Key.Item1, chars.Key.Item2, ""));
+                        continue;
+                    }
+
+                    // Build text with space reconstruction
+                    var textBuilder = new System.Text.StringBuilder();
+                    for (int i = 0; i < letters.Count; i++)
+                    {
+                        var letter = letters[i];
+
+                        // Detect word boundaries by measuring gaps
+                        if (i > 0)
+                        {
+                            var prevLetter = letters[i - 1];
+                            double gap = direction == "horizontal"
+                                ? letter.X0() - prevLetter.X1()
+                                : prevLetter.Y1() - letter.Y0();
+
+                            // Inter-letter spacing: ~0.2px
+                            // Inter-word spacing (including space character): ~4px
+                            // Use threshold of 2.0px to detect word boundaries
+                            if (gap > 2.0)
+                            {
+                                textBuilder.Append(' ');
+                            }
+                        }
+
+                        textBuilder.Append(letter.Value);
+                    }
+
+                    grouped_chars.Add((chars.Key.Item1, chars.Key.Item2, TextStrip(textBuilder.ToString(), strip_text)));
                 }
             }
             return grouped_chars;

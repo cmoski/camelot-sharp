@@ -14,7 +14,7 @@ namespace Camelot.LayoutExtractor
         /// <summary>
         /// Parameters for layout analysis
         /// </summary>
-        public class LAParams : DlaOptions
+        public class LAParams : IDlaOptions
         {
             /// <summary>
             /// If two characters have more overlap than this they
@@ -64,6 +64,7 @@ namespace Camelot.LayoutExtractor
             /// If layout analysis should be performed on text in figures.
             /// </summary>
             public bool all_texts { get; set; }
+            public int MaxDegreeOfParallelism { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         }
 
         //https://github.com/pdfminer/pdfminer.six/blob/f389b97923c7a847bc9c6f4c3374951e1a7ff764/pdfminer/layout.py#L593

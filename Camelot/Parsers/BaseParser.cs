@@ -30,7 +30,7 @@ namespace Camelot.Parsers
 
         public string FileName { get; protected set; }
 
-        public DlaOptions[] LayoutOptions { get; protected set; }
+        public IDlaOptions[] LayoutOptions { get; protected set; }
 
         public Page Layout { get; protected set; }
 
@@ -59,7 +59,7 @@ namespace Camelot.Parsers
         }
         */
 
-        public void GenerateLayout(Page page, params DlaOptions[] layout_kwargs)
+        public void GenerateLayout(Page page, params IDlaOptions[] layout_kwargs)
         {
             LayoutOptions = layout_kwargs;
             Layout = page;
@@ -70,7 +70,7 @@ namespace Camelot.Parsers
                 {
                     Images.Add(png);
                 }
-                else if (img.TryGetBytes(out var bytes))
+                else if (img.TryGetBytesAsMemory(out var bytes))
                 {
                     Images.Add(bytes.ToArray());
                 }
@@ -82,7 +82,7 @@ namespace Camelot.Parsers
 
             // get texts
             var nnweOptions = layout_kwargs?.Where(o => o is NearestNeighbourWordExtractor.NearestNeighbourWordExtractorOptions)?.FirstOrDefault();
-            var words = nnweOptions == null ? NearestNeighbourWordExtractor.Instance.GetWords(page.Letters) : NearestNeighbourWordExtractor.Instance.GetWords(page.Letters, nnweOptions);
+            var words = nnweOptions == null ? NearestNeighbourWordExtractor.Instance.GetWords(page.Letters) : NearestNeighbourWordExtractor.Instance.GetWords(page.Letters);
 
             var dbbOptions = layout_kwargs?.Where(o => o is DocstrumBoundingBoxes.DocstrumBoundingBoxesOptions)?.FirstOrDefault();
             if (dbbOptions == null)
@@ -92,7 +92,7 @@ namespace Camelot.Parsers
                      WithinLineMultiplier = 2,
                 };
             }
-            var blocks = dbbOptions == null ? DocstrumBoundingBoxes.Instance.GetBlocks(words) : DocstrumBoundingBoxes.Instance.GetBlocks(words, dbbOptions);
+            var blocks = dbbOptions == null ? DocstrumBoundingBoxes.Instance.GetBlocks(words) : DocstrumBoundingBoxes.Instance.GetBlocks(words);
 
             // horizontal text: normal and rotated 180
             HorizontalText = blocks.SelectMany(b => b.TextLines.Where(tl => tl.TextOrientation == TextOrientation.Horizontal || tl.TextOrientation == TextOrientation.Rotate180)).ToList();
@@ -107,6 +107,6 @@ namespace Camelot.Parsers
             RootName = Path.GetFileNameWithoutExtension(FileName);
         }
 
-        public abstract List<Table> ExtractTables(Page page, bool suppress_stdout = false, params DlaOptions[] layout_kwargs);
+        public abstract List<Table> ExtractTables(Page page, bool suppress_stdout = false, params IDlaOptions[] layout_kwargs);
     }
 }

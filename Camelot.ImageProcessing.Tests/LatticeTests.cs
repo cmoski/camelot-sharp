@@ -158,7 +158,7 @@ namespace Camelot.ImageProcessing.Tests
 
                 var lattice = new Lattice(new OpenCvImageProcesser(), new BasicSystemDrawingProcessor(), line_scale: 40);
                 var tables = lattice.ExtractTables(page,
-                    layout_kwargs: new DlaOptions[]
+                    layout_kwargs: new IDlaOptions[]
                     {
                         new DocstrumBoundingBoxes.DocstrumBoundingBoxesOptions()
                         {
@@ -171,7 +171,7 @@ namespace Camelot.ImageProcessing.Tests
 
                 lattice = new Lattice(new OpenCvImageProcesser(), new BasicSystemDrawingProcessor(), line_scale: 40, shift_text: new[] { "" });
                 tables = lattice.ExtractTables(page,
-                    layout_kwargs: new DlaOptions[]
+                    layout_kwargs: new IDlaOptions[]
                     {
                         new DocstrumBoundingBoxes.DocstrumBoundingBoxesOptions()
                         {
@@ -184,7 +184,7 @@ namespace Camelot.ImageProcessing.Tests
 
                 lattice = new Lattice(new OpenCvImageProcesser(), new BasicSystemDrawingProcessor(), line_scale: 40, shift_text: new[] { "r", "b" });
                 tables = lattice.ExtractTables(page,
-                    layout_kwargs: new DlaOptions[]
+                    layout_kwargs: new IDlaOptions[]
                     {
                         new DocstrumBoundingBoxes.DocstrumBoundingBoxesOptions()
                         {
