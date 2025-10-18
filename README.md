@@ -12,8 +12,6 @@ This is a maintained fork of [BobLd's camelot-sharp](https://github.com/BobLd/ca
   - Better handling of text elements with slight vertical offsets
   - Prevents incorrect text merging across columns
 
-[Rest of original README...]
-
 # Usage
 ## Stream mode 
 ```csharp
